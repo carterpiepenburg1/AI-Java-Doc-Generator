@@ -36,12 +36,11 @@ if __name__ == "__main__":
     output = open(javaFiles[10].name + "-documentation.md", "w")
 
     output.write(generateDocumentation("Write documentation for all functions in this java code."
-                                       "Do not include anything in the response other than the following for each function:"
+                                       "Do not include anything in the response other than the following for each function {"
                                        "Function: (function name with parameters)"
                                        "Parameters: A list of the parameters with short descriptions"
-                                       "Description: A brief description of the function and its usage"
-                                       "Format the responses using exactly this format as if it was a .md file."
-                                       "Keep the descriptions short and to the point, each function summary shouldnt be more than a few lines."
+                                       "Description: A brief description of the function and its usage }"
+                                       "Format the responses as if it was a .md file."
                                        "Here is the code: " + content))
 
     print("Generated documentation " + output.name + "\n")
