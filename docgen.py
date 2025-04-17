@@ -72,11 +72,18 @@ if __name__ == "__main__":
                         break;
 
                 #Function generated description
-                output.write("#### Description:\n")
-                output.write(generate("Describe this function using ONLY one paragraph." + functionString) + "\n")
+                output.write("\n#### Description:\n")
+                #output.write(generate("Describe this function using ONLY one paragraph." + functionString) + "\n")
+                output.write(generate("You are generating brief documentation for a Java code snippet.\n" 
+                                      "Your response MUST be a **single paragraph** with NO bullet points, NO line breaks, and NO section headers.\n" 
+                                      "Do NOT explain the prompt. Just output the summary.\n" 
+                                      "Keep your explanation short and focused. Avoid repetition.\n"
+                                      "Start your response with 'This function '\n" 
+                                      "Summarize ONLY the core logic and purpose of the code.\n\n" 
+                                      "Here is the Java code:\n\n" + functionString + "\n\nSummary (one paragraph only):\n" ))
 
                 #Showing function code
-                output.write("#### Code:\n")
+                output.write("\n#### Code:\n")
                 output.write("```\n" + functionString + "```\n")
 
                 numFunctions+=1
