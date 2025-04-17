@@ -9,22 +9,27 @@ import pathlib
 import random
 
 OLLAMA_API = "http://localhost:11434/api/generate"
+
 MODEL_NAME = "qwen2.5-coder:1.5b"
+#MODEL_NAME = "smollm2"
+#MODEL_NAME = "llama3.2:1b"
 
 def generate(prompt, model=MODEL_NAME):
     data = {
         "model": model,
         "prompt": prompt,
-        "stream": False
+        "stream": False,
+        "max_tokens": max_tokens
     }
     response = requests.post(OLLAMA_API, json=data)
     if response.status_code == 200:
-        return response.json()["response"]
+        return response.json()["response"].strip().replace("\n", " ")
     else:
         return f"Error: {response.status_code}, {response.text}"
 
+# Main function to collect Java files and generate documentation
 if __name__ == "__main__":
-    datasetsPath = (pathlib.Path("datasets"))
+    datasetsPath = pathlib.Path("datasets")
     datasets = list(datasetsPath.iterdir())
 
     #Collecting random java file
@@ -83,5 +88,9 @@ if __name__ == "__main__":
     if numFunctions == 0:
         output.write("## No functions detected in this file.\n")
 
-    print("Generated documentation " + output.name + "\n")
+    # Save documentation to output file
+    output_path = javaFiles[10].name + "-documentation.md"
+    with open(output_path, "w") as output:
+        output.write(documentation)
 
+    print(f" Generated one-paragraph documentation: {output_path}")
