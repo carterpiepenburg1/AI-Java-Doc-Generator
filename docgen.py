@@ -18,8 +18,7 @@ def generate(prompt, model=MODEL_NAME):
     data = {
         "model": model,
         "prompt": prompt,
-        "stream": False,
-        "max_tokens": max_tokens
+        "stream": False
     }
     response = requests.post(OLLAMA_API, json=data)
     if response.status_code == 200:
@@ -88,9 +87,4 @@ if __name__ == "__main__":
     if numFunctions == 0:
         output.write("## No functions detected in this file.\n")
 
-    # Save documentation to output file
-    output_path = javaFiles[10].name + "-documentation.md"
-    with open(output_path, "w") as output:
-        output.write(documentation)
-
-    print(f" Generated one-paragraph documentation: {output_path}")
+    print(f" Generated documentation at: {output.name}")
