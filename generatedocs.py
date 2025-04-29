@@ -1,42 +1,69 @@
-"""
-Code-base documentation generator
-COMPSCI 422 - Final Project
-Group 2 - Carter Piepenburg, Austin VanDenPlas
-"""
+import re
+import requests
 
-import pathlib
-from docgen import build_prompt, generate_documentation
-from json_utils import save_to_json
+OLLAMA_API = "http://localhost:11434/api/generate"
+MODEL_NAME = "qwen2.5-coder:1.5b"
 
-if __name__ == "__main__":
-    # Path to dataset
-    datasetsPath = pathlib.Path("datasets")
-    datasets = list(datasetsPath.iterdir())
+def generate(prompt, model=MODEL_NAME):
+    data = {
+        "model": model,
+        "prompt": prompt,
+        "stream": False
+    }
+    response = requests.post(OLLAMA_API, json=data)
+    if response.status_code == 200:
+        return response.json()["response"].strip().replace("\n", " ")
+    else:
+        return f"Error: {response.status_code}, {response.text}"
 
-    javaFiles = list(datasets[2].rglob("*.java"))[:5]  # Just 2 files for testing
+def build_prompt_block(code: str) -> str:
+    return (
+        "You are generating brief documentation for a Java code snippet.\n"
+        "Your response MUST be a **single paragraph** with NO bullet points, NO line breaks, and NO section headers.\n"
+        "Do NOT explain the prompt. Just output the summary.\n"
+        "Keep your explanation short and focused. Avoid repetition.\n"
+        "Start your response with 'This function '.\n"
+        "Summarize ONLY the core logic and purpose of the code.\n\n"
+        f"Here is the Java code:\n\n{code}\n\nSummary (one paragraph only):"
+    )
 
-    # This will store the documentation results
-    documentation_entries = []
+def extract_class_functions_from_java(code: str):
+    lines = code.splitlines()
+    inside_class = False
+    functions = []
+    index = 0
 
-    # Loop over each Java file
-    for javaFile in javaFiles:
-        try:
-            content = javaFile.read_text()
-            prompt = build_prompt(content)
-            documentation = generate_documentation(prompt)
+    while index < len(lines):
+        line = lines[index].strip()
+        if re.match(r"(public|private|protected)?\s*class\s+\w+", line):
+            inside_class = True
 
-            entry = {
-                "filename": javaFile.name,
-                "summary": documentation.strip()
-            }
-            # Add the entry to our list
-            documentation_entries.append(entry)
-            #Success
-            print(f"Processed: {javaFile.name}")
-        except Exception as e:
-            #Failure
-            print(f"Failed to process {javaFile.name}: {e}")
+        if inside_class and re.match(r"(public|private|protected).*\(.*\).*{", line) and "class" not in line:
+            header = line[:line.find("{")+1]
+            function_body = lines[index] + "\n"
+            open_braces = 1
+            index += 1
 
-    # Save all entries into a JSON file
-    save_to_json(documentation_entries, "documentation.json")
-    print(f"Documentation saved to documentation.json")
+            while index < len(lines) and open_braces > 0:
+                next_line = lines[index]
+                function_body += next_line + "\n"
+                open_braces += next_line.count("{")
+                open_braces -= next_line.count("}")
+                index += 1
+
+            functions.append({
+                "header": header.strip(),
+                "code": function_body.strip()
+            })
+        else:
+            index += 1
+
+    return functions
+
+def parse_response_blocks(response: str, expected_count: int):
+    # Attempt to split on "---" or newlines, return list of summaries
+    blocks = [block.strip() for block in response.split("---") if block.strip()]
+    if len(blocks) != expected_count:
+        print("Mismatch in expected response count. Returning raw fallback.")
+        return [response.strip()] * expected_count
+    return blocks

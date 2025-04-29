@@ -1,19 +1,11 @@
-"""
-Code-base documentation generator
-COMPSCI 422 - Final Project
-Group 2 - Carter Piepenburg, Austin VanDenPlas
-"""
-
 import requests
 import pathlib
 import random
 import json
+import time  # Import time module for timing
 
 OLLAMA_API = "http://localhost:11434/api/generate"
-
 MODEL_NAME = "qwen2.5-coder:1.5b"
-# MODEL_NAME = "smollm2"
-# MODEL_NAME = "llama3.2:1b"
 
 def generate(prompt, model=MODEL_NAME):
     """
@@ -31,26 +23,21 @@ def generate(prompt, model=MODEL_NAME):
         return f"Error: {response.status_code}, {response.text}"
 
 if __name__ == "__main__":
-    datasetsPath = pathlib.Path("datasets")
-    datasets = list(datasetsPath.iterdir())
+    # Define the path to your specific Java file
+    specific_file_path = pathlib.Path("datasets/Java-master/src/main/java/com/thealgorithms/puzzlesandgames/Sudoku.java")  # Modify this path if needed
 
-    # Collect random Java file
-    javaFiles = list(random.choice(datasets).rglob("*.java"))
-    filePath = random.choice(javaFiles)
+    # Start timing the execution
+    start_time = time.time()
 
-    # Specific Java file (if needed)
-    # filePath = pathlib.Path("datasets/Java-master/src/main/java/com/thealgorithms/puzzlesandgames/Sudoku.java")
-
-    lines = filePath.read_text().splitlines()
+    lines = specific_file_path.read_text().splitlines()
 
     output_folder = pathlib.Path("outputs")
     output_folder.mkdir(exist_ok=True)
 
-    output_md = open(output_folder / (filePath.stem + "-documentation.md"), "w")
-    output_md.write("# " + filePath.stem + "\n")
+    output_md = open(output_folder / (specific_file_path.stem + "-documentation.md"), "w")
+    output_md.write("# " + specific_file_path.stem + "\n")
 
     documentation_entries = []
-
     function_blocks = []  # Save detected functions
     index = 0
 
@@ -86,7 +73,7 @@ if __name__ == "__main__":
     if not function_blocks:
         output_md.write("## No functions detected in this file.\n")
         output_md.close()
-        print(f"No functions found in {filePath.name}")
+        print(f"No functions found in {specific_file_path.name}")
         exit(0)
 
     # --- Build big prompt ---
@@ -112,10 +99,6 @@ if __name__ == "__main__":
     # --- Parse AI response ---
     print("Parsing AI response...")
 
-    # Assume responses are split like:
-    # Function 1: text
-    # Function 2: text
-    # etc.
     splits = ai_response.split("Function ")
     function_summaries = {}
     for part in splits:
@@ -150,7 +133,7 @@ if __name__ == "__main__":
     output_md.close()
 
     # Save JSON file
-    json_filename = output_folder / (filePath.stem + "-documentation.json")
+    json_filename = output_folder / (specific_file_path.stem + "-documentation.json")
     try:
         with open(json_filename, "w", encoding="utf-8") as f:
             json.dump(documentation_entries, f, indent=4, ensure_ascii=False)
@@ -159,3 +142,8 @@ if __name__ == "__main__":
         print(f"Failed to save JSON file: {e}")
 
     print(f"Generated markdown documentation at: {output_md.name}")
+
+    # End timing and print time taken
+    end_time = time.time()
+    execution_time = end_time - start_time
+    print(f"Time taken to process the file: {execution_time:.2f} seconds")
