@@ -9,6 +9,7 @@ import pathlib
 import random
 import time
 import os
+import re
 
 OLLAMA_API = "http://localhost:11434/api/generate"
 
@@ -61,7 +62,7 @@ if __name__ == "__main__":
 
         totalOpenPara = 0
 
-        print("Generating documentation for " + file.name + "...\n")
+        print("Generating documentation for " + file.name + "...")
         while index < len(lines):
             line = lines[index].strip()
             if line: #Not a blank line
@@ -134,7 +135,7 @@ if __name__ == "__main__":
             print("No classes detected in file")
 
     #table of contents
-    print("Generating table of contents...\n")
+    print("Generating table of contents...")
 
     output.close()
     output = open(r"outputs\documentation.md", "r+")
@@ -143,19 +144,43 @@ if __name__ == "__main__":
 
     output.write("# Table of Contents" + "\n")
 
-    #output.write("<ul>\n")
+    index = 0
     for clas in classes:
-        addressString = "(#" + clas + ")"
+        clasLabel = clas
+        clasLabel = clasLabel.replace("<", "&lt")
+        clasLabel = clasLabel.replace(">", "&gt")
+        addressString = clas
+        addressString = addressString.lower()
+        addressString = re.sub(r'[^a-z0-9\s-]', '', addressString)
         addressString = addressString.replace(" ", "-")
-        output.write("* [" + clas + "]" + addressString + "\n")
-    #output.write("</ul>\n")
+        addressString = "#" + addressString
+
+        output.write("<details>\n")
+        output.write(f"<summary><a href=\"{addressString}\">{clasLabel}</a></summary>\n\n")
+
+        output.write("<ul>\n")
+        for func in functions[index]:
+            funcLabel = func
+            funcLabel = funcLabel.replace("<", "&lt")
+            funcLabel = funcLabel.replace(">", "&gt")
+            funcString = func
+            funcString = funcString.lower()
+            funcString = re.sub(r'[^a-z0-9\s-]', '', funcString)
+            funcString = funcString.replace(" ", "-")
+            funcString = "#" + funcString
+            output.write(f"<li><a href=\"{funcString}\">{funcLabel}</a></li>\n")
+        output.write("</ul>\n")
+        output.write("</details>\n\n")
+
+        index+=1
+
     output.write("___\n\n")
 
     output.write(oldContent)
 
     end_time = time.perf_counter()
-    print(f"Generated documentation at: {output.name}\n")
-    print(f"Process took {end_time - start_time} seconds\n")
+    print(f"Generated documentation at: {output.name}")
+    print(f"Process took {end_time - start_time} seconds")
 
 
 
