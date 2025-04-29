@@ -46,7 +46,7 @@ if __name__ == "__main__":
     output = open(r"outputs\documentation.md", "w")
     classes = []
     numClasses = 0
-    functions = [1]
+    functions = [[]]
 
     for filePath in javaFiles:
 
@@ -65,10 +65,15 @@ if __name__ == "__main__":
         while index < len(lines):
             line = lines[index].strip()
             if line: #Not a blank line
-                if "{" in line and ("public" in line or "private" in line or "final" in line) and "class" in line and "//" not in line and "*" not in line:
+
+                if "{" in line:
+                    totalOpenPara += 1
+                if "}" in line:
+                    totalOpenPara -= 1
+
+                if "{" in line and ("public" in line or "private" in line or "final" in line) and "class" in line and "//" not in line and "*" not in line and totalOpenPara == 1:
                     #class
                     currentClass = True
-                    totalOpenPara += 1
 
                     output.write("# " + line[:line.rfind('{')] + "\n")
                     classes.append(line[:line.rfind('{')])
@@ -83,8 +88,7 @@ if __name__ == "__main__":
                     functions[numClasses].append(line[:line.rfind(')') + 1])
 
                     #Extracting function string
-                    openPara = totalOpenPara
-                    totalOpenPara += 1
+                    openPara = totalOpenPara - 1
                     functionString = lines[index]
                     while totalOpenPara > openPara:
                         index += 1
@@ -102,7 +106,7 @@ if __name__ == "__main__":
                     #Function generated description
                     output.write("\n#### Description:\n")
                     #output.write(generate("Describe this function using ONLY one paragraph." + functionString) + "\n")
-                    output.write(generate("You are generating brief documentation for a Java code snippet.\n" 
+                    output.write(generate("You are generating brief documentation for a Java code snippet.\n"
                                           "Your response MUST be a **single paragraph** with NO bullet points, NO line breaks, and NO section headers.\n" 
                                           "Do NOT explain the prompt. Just output the summary.\n" 
                                           "Keep your explanation short and focused. Avoid repetition.\n"
@@ -115,7 +119,7 @@ if __name__ == "__main__":
                     output.write("```\n" + functionString + "```\n")
                     currentFunction = False
 
-                elif currentClass is True and currentFunction is False and "}" in line and totalOpenPara == 1 and "//" not in line and "*" not in line:
+                elif currentClass is True and currentFunction is False and "}" in line and totalOpenPara == 0 and "//" not in line and "*" not in line:
                     #end of class
                     currentClass = False
                     numClasses += 1
@@ -129,8 +133,27 @@ if __name__ == "__main__":
             #output.write("## No classes detected in file.\n")
             print("No classes detected in file")
 
-    end_time = time.perf_counter()
+    #table of contents
+    print("Generating table of contents...\n")
 
+    output.close()
+    output = open(r"outputs\documentation.md", "r+")
+    oldContent = output.read()
+    output.seek(0)
+
+    output.write("# Table of Contents" + "\n")
+
+    #output.write("<ul>\n")
+    for clas in classes:
+        addressString = "(#" + clas + ")"
+        addressString = addressString.replace(" ", "-")
+        output.write("* [" + clas + "]" + addressString + "\n")
+    #output.write("</ul>\n")
+    output.write("___\n\n")
+
+    output.write(oldContent)
+
+    end_time = time.perf_counter()
     print(f"Generated documentation at: {output.name}\n")
     print(f"Process took {end_time - start_time} seconds\n")
 
