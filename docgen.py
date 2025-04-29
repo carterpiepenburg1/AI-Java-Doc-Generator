@@ -44,7 +44,12 @@ if __name__ == "__main__":
     #Starting from input directory
     javaFiles = list(pathlib.Path("input").rglob("*.java"))
 
-    output = open(r"outputs\documentation.md", "w", encoding="utf-8")
+    outputName = "documentation"
+    outputNumber = 0
+    while os.path.exists("outputs\\" + outputName + "-" + str(outputNumber) + ".md"):
+        outputNumber+=1
+
+    output = open("outputs\\" + outputName + "-" + str(outputNumber) + ".md", "w", encoding="utf-8")
     classes = []
     numClasses = 0
     functions = [[]]
@@ -154,7 +159,7 @@ if __name__ == "__main__":
     print("Generating table of contents...")
 
     output.close()
-    output = open(r"outputs\documentation.md", "r+", encoding="utf-8")
+    output = open("outputs\\" + outputName + "-" + str(outputNumber) + ".md", "r+", encoding="utf-8")
     oldContent = output.read()
     output.seek(0)
 
