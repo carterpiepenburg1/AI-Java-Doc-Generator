@@ -120,22 +120,6 @@ if __name__ == "__main__":
                                           "Summarize ONLY the core logic and purpose of the code.\n\n" 
                                           "Here is the Java code:\n\n" + functionString + "\n\nSummary (one paragraph only):\n" ))
 
-                    # Function argument description
-                    output.write("\n#### Arguments:\n")
-                    # output.write(generate("Describe this function using ONLY one paragraph." + functionString) + "\n")
-                    listString = generate("You are summarizing the arguments in a java function.\n"
-                                          "Use only arguments that are within the parenthesis of the first line where the function is defined.\n"
-                                          "Return them in a bullet point list where each argument has a very brief one line description\n"
-                                          "Example: public String helloWorld(String arg1, int arg2) would return: \n"
-                                          "- String arg1: short description less than 10 words\n"
-                                          "- int arg2: short description less than 10 words\n"
-                                          "Use markdown formatting for the bullet points\n"
-                                          "If the function has an open parentheses followed immediately by a closed paranthesis like (), return the word 'None' with no formatting.\n"
-                                          "Include nothing else in your response.\n"
-                                          "Here is the Java code:\n\n" + functionString + "\n\n")
-                    listString = listString.replace("-", "\n-")
-                    output.write(listString)
-
                     #Showing function code
                     output.write("\n#### Code:\n")
                     output.write("```\n" + functionString + "```\n")
