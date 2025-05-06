@@ -1,0 +1,122 @@
+[
+  {
+    "index": 201,
+    "code": "public WebServiceTemplateBuilder setTransformerFactoryClass(\n\t\t\tClass<? extends TransformerFactory> transformerFactoryClass) {\n\t\treturn new WebServiceTemplateBuilder(this.detectHttpMessageSender,\n\t\t\t\tthis.interceptors, this.internalCustomizers, this.customizers,\n\t\t\t\tthis.messageSenders, this.marshaller, this.unmarshaller,\n\t\t\t\tthis.destinationProvider, transformerFactoryClass, this.messageFactory);\n\t}",
+    "reference_explanation": "Set the {@link TransformerFactory} implementation to use.\n@param transformerFactoryClass the transformer factory implementation to use\n@return a new builder instance.\n@see WebServiceTemplate#setTransformerFactoryClass(Class)",
+    "generated_explanation": ""
+  },
+  {
+    "index": 202,
+    "code": "public WebServiceTemplateBuilder setDefaultUri(String defaultUri) {\n\t\tAssert.hasText(defaultUri, \"DefaultUri must not be empty\");\n\t\treturn setDestinationProvider(() -> URI.create(defaultUri));\n\t}",
+    "reference_explanation": "Set the default URI to be used on operations that do not have a URI parameter.\nTypically, either this property is set, or\n{@link #setDestinationProvider(DestinationProvider)}, but not both.\n@param defaultUri the destination provider URI to be used on operations that do not\nhave a URI parameter.\n@return a new builder instance.\n@see #setDestinationProvider(DestinationProvider)",
+    "generated_explanation": ""
+  },
+  {
+    "index": 203,
+    "code": "public WebServiceTemplateBuilder setDestinationProvider(\n\t\t\tDestinationProvider destinationProvider) {\n\t\tAssert.notNull(destinationProvider, \"DestinationProvider must not be null\");\n\t\treturn new WebServiceTemplateBuilder(this.detectHttpMessageSender,\n\t\t\t\tthis.interceptors, this.internalCustomizers, this.customizers,\n\t\t\t\tthis.messageSenders, this.marshaller, this.unmarshaller,\n\t\t\t\tdestinationProvider, this.transformerFactoryClass, this.messageFactory);\n\t}",
+    "reference_explanation": "Set the {@link DestinationProvider} to use. Typically, either this property is set,\nor {@link #setDefaultUri(String)}, but not both.\n@param destinationProvider the destination provider to be used on operations that\ndo not have a URI parameter.\n@return a new builder instance.\n@see WebServiceTemplate#setDestinationProvider(DestinationProvider)",
+    "generated_explanation": ""
+  },
+  {
+    "index": 204,
+    "code": "public <T extends WebServiceTemplate> T build(Class<T> webServiceTemplateClass) {\n\t\tAssert.notNull(webServiceTemplateClass,\n\t\t\t\t\"WebServiceTemplateClass must not be null\");\n\t\treturn configure(BeanUtils.instantiateClass(webServiceTemplateClass));\n\t}",
+    "reference_explanation": "Build a new {@link WebServiceTemplate} instance of the specified type and configure\nit using this builder.\n@param <T> the type of web service template\n@param webServiceTemplateClass the template type to create\n@return a configured {@link WebServiceTemplate} instance.\n@see WebServiceTemplateBuilder#build()\n@see #configure(WebServiceTemplate)",
+    "generated_explanation": ""
+  },
+  {
+    "index": 205,
+    "code": "public <T extends WebServiceTemplate> T configure(T webServiceTemplate) {\n\t\tAssert.notNull(webServiceTemplate, \"WebServiceTemplate must not be null\");\n\t\tconfigureMessageSenders(webServiceTemplate);\n\t\tPropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();\n\t\tapplyCustomizers(webServiceTemplate, this.internalCustomizers);\n\t\tmap.from(this.marshaller).to(webServiceTemplate::setMarshaller);\n\t\tmap.from(this.unmarshaller).to(webServiceTemplate::setUnmarshaller);\n\t\tmap.from(this.destinationProvider).to(webServiceTemplate::setDestinationProvider);\n\t\tmap.from(this.transformerFactoryClass)\n\t\t\t\t.to(webServiceTemplate::setTransformerFactoryClass);\n\t\tmap.from(this.messageFactory).to(webServiceTemplate::setMessageFactory);\n\t\tif (!CollectionUtils.isEmpty(this.interceptors)) {\n\t\t\tSet<ClientInterceptor> merged = new LinkedHashSet<>(this.interceptors);\n\t\t\tif (webServiceTemplate.getInterceptors() != null) {\n\t\t\t\tmerged.addAll(Arrays.asList(webServiceTemplate.getInterceptors()));\n\t\t\t}\n\t\t\twebServiceTemplate.setInterceptors(merged.toArray(new ClientInterceptor[0]));\n\t\t}\n\t\tapplyCustomizers(webServiceTemplate, this.customizers);\n\t\treturn webServiceTemplate;\n\t}",
+    "reference_explanation": "Configure the provided {@link WebServiceTemplate} instance using this builder.\n@param <T> the type of web service template\n@param webServiceTemplate the {@link WebServiceTemplate} to configure\n@return the web service template instance\n@see #build()\n@see #build(Class)",
+    "generated_explanation": ""
+  },
+  {
+    "index": 206,
+    "code": "public static List<String> get(BeanFactory beanFactory) {\n\t\ttry {\n\t\t\treturn beanFactory.getBean(BEAN, BasePackages.class).get();\n\t\t}\n\t\tcatch (NoSuchBeanDefinitionException ex) {\n\t\t\tthrow new IllegalStateException(\n\t\t\t\t\t\"Unable to retrieve @EnableAutoConfiguration base packages\");\n\t\t}\n\t}",
+    "reference_explanation": "Return the auto-configuration base packages for the given bean factory.\n@param beanFactory the source bean factory\n@return a list of auto-configuration packages\n@throws IllegalStateException if auto-configuration is not enabled",
+    "generated_explanation": ""
+  },
+  {
+    "index": 207,
+    "code": "public static void register(BeanDefinitionRegistry registry, String... packageNames) {\n\t\tif (registry.containsBeanDefinition(BEAN)) {\n\t\t\tBeanDefinition beanDefinition = registry.getBeanDefinition(BEAN);\n\t\t\tConstructorArgumentValues constructorArguments = beanDefinition\n\t\t\t\t\t.getConstructorArgumentValues();\n\t\t\tconstructorArguments.addIndexedArgumentValue(0,\n\t\t\t\t\taddBasePackages(constructorArguments, packageNames));\n\t\t}\n\t\telse {\n\t\t\tGenericBeanDefinition beanDefinition = new GenericBeanDefinition();\n\t\t\tbeanDefinition.setBeanClass(BasePackages.class);\n\t\t\tbeanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0,\n\t\t\t\t\tpackageNames);\n\t\t\tbeanDefinition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);\n\t\t\tregistry.registerBeanDefinition(BEAN, beanDefinition);\n\t\t}\n\t}",
+    "reference_explanation": "Programmatically registers the auto-configuration package names. Subsequent\ninvocations will add the given package names to those that have already been\nregistered. You can use this method to manually define the base packages that will\nbe used for a given {@link BeanDefinitionRegistry}. Generally it's recommended that\nyou don't call this method directly, but instead rely on the default convention\nwhere the package name is set from your {@code @EnableAutoConfiguration}\nconfiguration class or classes.\n@param registry the bean definition registry\n@param packageNames the package names to set",
+    "generated_explanation": ""
+  },
+  {
+    "index": 208,
+    "code": "public void setDeploymentInfoCustomizers(\n\t\t\tCollection<? extends UndertowDeploymentInfoCustomizer> customizers) {\n\t\tAssert.notNull(customizers, \"Customizers must not be null\");\n\t\tthis.deploymentInfoCustomizers = new ArrayList<>(customizers);\n\t}",
+    "reference_explanation": "Set {@link UndertowDeploymentInfoCustomizer}s that should be applied to the\nUndertow {@link DeploymentInfo}. Calling this method will replace any existing\ncustomizers.\n@param customizers the customizers to set",
+    "generated_explanation": ""
+  },
+  {
+    "index": 209,
+    "code": "public void setBuilderCustomizers(\n\t\t\tCollection<? extends UndertowBuilderCustomizer> customizers) {\n\t\tAssert.notNull(customizers, \"Customizers must not be null\");\n\t\tthis.builderCustomizers = new ArrayList<>(customizers);\n\t}",
+    "reference_explanation": "Set {@link UndertowBuilderCustomizer}s that should be applied to the Undertow\n{@link io.undertow.Undertow.Builder Builder}. Calling this method will replace any\nexisting customizers.\n@param customizers the customizers to set",
+    "generated_explanation": ""
+  },
+  {
+    "index": 210,
+    "code": "@Override\n\tpublic void addBuilderCustomizers(UndertowBuilderCustomizer... customizers) {\n\t\tAssert.notNull(customizers, \"Customizers must not be null\");\n\t\tthis.builderCustomizers.addAll(Arrays.asList(customizers));\n\t}",
+    "reference_explanation": "Add {@link UndertowBuilderCustomizer}s that should be used to customize the\nUndertow {@link io.undertow.Undertow.Builder Builder}.\n@param customizers the customizers to add",
+    "generated_explanation": ""
+  },
+  {
+    "index": 211,
+    "code": "private void definePackageIfNecessary(String className) {\n\t\tint lastDot = className.lastIndexOf('.');\n\t\tif (lastDot >= 0) {\n\t\t\tString packageName = className.substring(0, lastDot);\n\t\t\tif (getPackage(packageName) == null) {\n\t\t\t\ttry {\n\t\t\t\t\tdefinePackage(className, packageName);\n\t\t\t\t}\n\t\t\t\tcatch (IllegalArgumentException ex) {\n\t\t\t\t\t// Tolerate race condition due to being parallel capable\n\t\t\t\t\tif (getPackage(packageName) == null) {\n\t\t\t\t\t\t// This should never happen as the IllegalArgumentException\n\t\t\t\t\t\t// indicates that the package has already been defined and,\n\t\t\t\t\t\t// therefore, getPackage(name) should not have returned null.\n\t\t\t\t\t\tthrow new AssertionError(\n\t\t\t\t\t\t\t\t\"Package \" + packageName + \" has already been defined \"\n\t\t\t\t\t\t\t\t\t\t+ \"but it could not be found\");\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}",
+    "reference_explanation": "Define a package before a {@code findClass} call is made. This is necessary to\nensure that the appropriate manifest for nested JARs is associated with the\npackage.\n@param className the class name being found",
+    "generated_explanation": ""
+  },
+  {
+    "index": 212,
+    "code": "public void clearCache() {\n\t\tfor (URL url : getURLs()) {\n\t\t\ttry {\n\t\t\t\tURLConnection connection = url.openConnection();\n\t\t\t\tif (connection instanceof JarURLConnection) {\n\t\t\t\t\tclearCache(connection);\n\t\t\t\t}\n\t\t\t}\n\t\t\tcatch (IOException ex) {\n\t\t\t\t// Ignore\n\t\t\t}\n\t\t}\n\n\t}",
+    "reference_explanation": "Clear URL caches.",
+    "generated_explanation": ""
+  },
+  {
+    "index": 213,
+    "code": "public int start() throws IOException {\n\t\tsynchronized (this.monitor) {\n\t\t\tAssert.state(this.serverThread == null, \"Server already started\");\n\t\t\tServerSocketChannel serverSocketChannel = ServerSocketChannel.open();\n\t\t\tserverSocketChannel.socket().bind(new InetSocketAddress(this.listenPort));\n\t\t\tint port = serverSocketChannel.socket().getLocalPort();\n\t\t\tlogger.trace(\"Listening for TCP traffic to tunnel on port \" + port);\n\t\t\tthis.serverThread = new ServerThread(serverSocketChannel);\n\t\t\tthis.serverThread.start();\n\t\t\treturn port;\n\t\t}\n\t}",
+    "reference_explanation": "Start the client and accept incoming connections.\n@return the port on which the client is listening\n@throws IOException in case of I/O errors",
+    "generated_explanation": ""
+  },
+  {
+    "index": 214,
+    "code": "public void stop() throws IOException {\n\t\tsynchronized (this.monitor) {\n\t\t\tif (this.serverThread != null) {\n\t\t\t\tthis.serverThread.close();\n\t\t\t\ttry {\n\t\t\t\t\tthis.serverThread.join(2000);\n\t\t\t\t}\n\t\t\t\tcatch (InterruptedException ex) {\n\t\t\t\t\tThread.currentThread().interrupt();\n\t\t\t\t}\n\t\t\t\tthis.serverThread = null;\n\t\t\t}\n\t\t}\n\t}",
+    "reference_explanation": "Stop the client, disconnecting any servers.\n@throws IOException in case of I/O errors",
+    "generated_explanation": ""
+  },
+  {
+    "index": 215,
+    "code": "protected final File createTempDir(String prefix) {\n\t\ttry {\n\t\t\tFile tempDir = File.createTempFile(prefix + \".\", \".\" + getPort());\n\t\t\ttempDir.delete();\n\t\t\ttempDir.mkdir();\n\t\t\ttempDir.deleteOnExit();\n\t\t\treturn tempDir;\n\t\t}\n\t\tcatch (IOException ex) {\n\t\t\tthrow new WebServerException(\n\t\t\t\t\t\"Unable to create tempDir. java.io.tmpdir is set to \"\n\t\t\t\t\t\t\t+ System.getProperty(\"java.io.tmpdir\"),\n\t\t\t\t\tex);\n\t\t}\n\t}",
+    "reference_explanation": "Return the absolute temp dir for given web server.\n@param prefix server name\n@return the temp dir for given server.",
+    "generated_explanation": ""
+  },
+  {
+    "index": 216,
+    "code": "public void writeManifest(Manifest manifest) throws IOException {\n\t\tJarArchiveEntry entry = new JarArchiveEntry(\"META-INF/MANIFEST.MF\");\n\t\twriteEntry(entry, manifest::write);\n\t}",
+    "reference_explanation": "Write the specified manifest.\n@param manifest the manifest to write\n@throws IOException of the manifest cannot be written",
+    "generated_explanation": ""
+  },
+  {
+    "index": 217,
+    "code": "@Override\n\tpublic void writeEntry(String entryName, InputStream inputStream) throws IOException {\n\t\tJarArchiveEntry entry = new JarArchiveEntry(entryName);\n\t\twriteEntry(entry, new InputStreamEntryWriter(inputStream, true));\n\t}",
+    "reference_explanation": "Writes an entry. The {@code inputStream} is closed once the entry has been written\n@param entryName the name of the entry\n@param inputStream the stream from which the entry's data can be read\n@throws IOException if the write fails",
+    "generated_explanation": ""
+  },
+  {
+    "index": 218,
+    "code": "public void writeNestedLibrary(String destination, Library library)\n\t\t\tthrows IOException {\n\t\tFile file = library.getFile();\n\t\tJarArchiveEntry entry = new JarArchiveEntry(destination + library.getName());\n\t\tentry.setTime(getNestedLibraryTime(file));\n\t\tnew CrcAndSize(file).setupStoredEntry(entry);\n\t\twriteEntry(entry, new InputStreamEntryWriter(new FileInputStream(file), true),\n\t\t\t\tnew LibraryUnpackHandler(library));\n\t}",
+    "reference_explanation": "Write a nested library.\n@param destination the destination of the library\n@param library the library\n@throws IOException if the write fails",
+    "generated_explanation": ""
+  },
+  {
+    "index": 219,
+    "code": "@Override\n\tpublic void writeLoaderClasses(String loaderJarResourceName) throws IOException {\n\t\tURL loaderJar = getClass().getClassLoader().getResource(loaderJarResourceName);\n\t\ttry (JarInputStream inputStream = new JarInputStream(\n\t\t\t\tnew BufferedInputStream(loaderJar.openStream()))) {\n\t\t\tJarEntry entry;\n\t\t\twhile ((entry = inputStream.getNextJarEntry()) != null) {\n\t\t\t\tif (entry.getName().endsWith(\".class\")) {\n\t\t\t\t\twriteEntry(new JarArchiveEntry(entry),\n\t\t\t\t\t\t\tnew InputStreamEntryWriter(inputStream, false));\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}",
+    "reference_explanation": "Write the required spring-boot-loader classes to the JAR.\n@param loaderJarResourceName the name of the resource containing the loader classes\nto be written\n@throws IOException if the classes cannot be written",
+    "generated_explanation": ""
+  },
+  {
+    "index": 220,
+    "code": "private void writeEntry(JarArchiveEntry entry, EntryWriter entryWriter,\n\t\t\tUnpackHandler unpackHandler) throws IOException {\n\t\tString parent = entry.getName();\n\t\tif (parent.endsWith(\"/\")) {\n\t\t\tparent = parent.substring(0, parent.length() - 1);\n\t\t\tentry.setUnixMode(UnixStat.DIR_FLAG | UnixStat.DEFAULT_DIR_PERM);\n\t\t}\n\t\telse {\n\t\t\tentry.setUnixMode(UnixStat.FILE_FLAG | UnixStat.DEFAULT_FILE_PERM);\n\t\t}\n\t\tif (parent.lastIndexOf('/') != -1) {\n\t\t\tparent = parent.substring(0, parent.lastIndexOf('/') + 1);\n\t\t\tif (!parent.isEmpty()) {\n\t\t\t\twriteEntry(new JarArchiveEntry(parent), null, unpackHandler);\n\t\t\t}\n\t\t}\n\n\t\tif (this.writtenEntries.add(entry.getName())) {\n\t\t\tentryWriter = addUnpackCommentIfNecessary(entry, entryWriter, unpackHandler);\n\t\t\tthis.jarOutput.putArchiveEntry(entry);\n\t\t\tif (entryWriter != null) {\n\t\t\t\tentryWriter.write(this.jarOutput);\n\t\t\t}\n\t\t\tthis.jarOutput.closeArchiveEntry();\n\t\t}\n\t}",
+    "reference_explanation": "Perform the actual write of a {@link JarEntry}. All other write methods delegate to\nthis one.\n@param entry the entry to write\n@param entryWriter the entry writer or {@code null} if there is no content\n@param unpackHandler handles possible unpacking for the entry\n@throws IOException in case of I/O errors",
+    "generated_explanation": ""
+  }
+]
