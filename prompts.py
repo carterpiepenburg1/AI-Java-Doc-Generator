@@ -40,28 +40,32 @@ def general_code_prompt(function_code: str) -> str:
     return generate(prompt)
 
 def explanation_with_chain_of_thought(function_code: str) -> str:
-    return (
-        "Explain what the following Java function does, step by step."
-        " After the explanation, summarize it with a clean markdown doc section:"
-        f"\n\n{function_code}\n\n"
-        "Respond with reasoning first, then the markdown documentation."
+    prompt = (
+        "Analyze the following Java function in a direct, step-by-step manner without pleasantries or introductions."
+        " Then, provide a clean markdown (.md) documentation section."
+        " Your response should begin immediately with the analysis and stay technical."
+        "\n\nCode:\n"
+        f"{function_code}"
     )
+    return generate(prompt)
 
 
 def few_shot_learning_prompt(function_code: str) -> str:
-    few_shot_example = """
-Example:
-Function: public static int add(int a, int b)
-Parameters:
-- a: First integer
-- b: Second integer
-Description:
-Adds two integers and returns the result.
----
-"""
-    return (
-        "Based on the format shown below, write documentation for this Java function:"
-        f"{few_shot_example}\nJava code:\n\n{function_code}"
+    few_shot_example = (
+        "Example:\n"
+        "Function: public static int add(int a, int b)\n"
+        "Parameters:\n"
+        "- a: First integer\n"
+        "- b: Second integer\n"
+        "Description:\n"
+        "Adds two integers and returns the result.\n"
+        "---\n"
     )
+    prompt = (
+        "Based on the format shown below, write documentation for this Java function."
+        f"\n\n{few_shot_example}"
+        f"Java code:\n\n{function_code}"
+    )
+    return generate(prompt)
 
 #move generate from docgen to prompts.py then call generate in zero shot prompt and have that function return the response to docgen
