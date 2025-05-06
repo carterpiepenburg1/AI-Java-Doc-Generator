@@ -11,7 +11,7 @@ import os
 import re
 
 
-from prompts import zero_shot_prompt, general_code_prompt
+from prompts import zero_shot_prompt, general_code_prompt, explanation_with_chain_of_thought, few_shot_learning_prompt
 
 # Main function to collect Java files and generate documentation
 if __name__ == "__main__":
@@ -84,7 +84,7 @@ if __name__ == "__main__":
 
                     # Generate description using zero_shot_prompt
                     output.write("\n#### Description:\n")
-                    output.write(general_code_prompt(functionString) + "\n")
+                    output.write(few_shot_learning_prompt(functionString) + "\n")
 
                     # Show function code
                     output.write("\n#### Code:\n")
