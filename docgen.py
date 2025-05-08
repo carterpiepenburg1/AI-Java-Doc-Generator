@@ -84,7 +84,7 @@ if __name__ == "__main__":
 
                     # Generate description using zero_shot_prompt
                     output.write("\n#### Description:\n")
-                    output.write(few_shot_learning_prompt(functionString) + "\n")
+                    output.write(zero_shot_prompt(functionString) + "\n")
 
                     # Show function code
                     output.write("\n#### Code:\n")
