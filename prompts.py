@@ -17,13 +17,16 @@ def generate(prompt: str, model=MODEL_NAME) -> str:
 
 def zero_shot_prompt(function_code: str) -> str:
     prompt = (
-        "Write documentation for all functions in this java code."
-        " Do not include anything in the response other than the following for each function {"
-        " Function: (function name with parameters)"
-        " Parameters: A list of the parameters with short descriptions"
-        " Description: A brief description of the function and its usage }"
-        " Format the responses as if it was a .md file."
-        f" Here is the code: {function_code}"
+        f"""
+You are generating brief documentation for a Java code snippet.
+Your response MUST be a single paragraph with NO bulletpoints, NO line breaks, and NO section headers.
+Do NOT explain the prompt. Just output the summary.
+Keep your explanation short and focused. Avoid repetition.
+Start your response with the words (This function)
+Summarize ONLY the core logic and purpose of the code.
+Here is the Java code:
+Summary (one paragraph only):
+{function_code}"""
     )
     return generate(prompt)
 
